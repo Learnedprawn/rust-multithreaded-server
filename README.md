@@ -17,7 +17,7 @@ git clone <https://github.com/Learnedprawn/rust-multithreaded-server.git>
 cd rust-multithreaded-server
 cargo run
 
-# Server starts on http://127.0.0.1:7878
+# Server starts on http://127.0.0.1:3000
 ```
 
 ## What's Inside
