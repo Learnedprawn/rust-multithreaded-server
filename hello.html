@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rust Web Server</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .container {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .rust-logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            background: #ce422b;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #ff6b6b, #ffd93d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin: 0.5rem;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffd93d;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 0.5rem;
+        }
+
+        .features {
+            text-align: left;
+            margin: 2rem 0;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            margin: 1rem 0;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            transition: transform 0.2s ease;
+        }
+
+        .feature:hover {
+            transform: translateX(5px);
+        }
+
+        .feature-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 1rem;
+            background: #4CAF50;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .footer {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        .time {
+            font-family: 'Courier New', monospace;
+            color: #ffd93d;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .stats {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="rust-logo">🦀</div>
+        <h1>Rust Web Server</h1>
+        <p class="subtitle">Built from scratch with multithreading support</p>
+        
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-number" id="requests">1</div>
+                <div class="stat-label">Request</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number" id="threads">Active</div>
+                <div class="stat-label">Thread Pool</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">HTTP/1</div>
+                <div class="stat-label">Protocol</div>
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">✓</div>
+                <div>TCP socket handling</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">✓</div>
+                <div>Multithreaded request processing</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">✓</div>
+                <div>HTTP request parsing</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">✓</div>
+                <div>Graceful shutdown handling</div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Server running on <strong>127.0.0.1:3000</strong></p>
+        </div>
+    </div>
+
+    <script>
+        // Update timestamp
+        document.getElementById('timestamp').textContent = new Date().toLocaleString();
+        
+        // Simulate request counter (in a real server, this would come from the backend)
+        let requestCount = Math.floor(Math.random() * 100) + 1;
+        document.getElementById('requests').textContent = requestCount;
+        
+        // Add some interactive elements
+        document.querySelector('.rust-logo').addEventListener('click', function() {
+            this.style.transform = 'rotate(360deg)';
+            this.style.transition = 'transform 0.5s ease';
+            setTimeout(() => {
+                this.style.transform = 'rotate(0deg)';
+            }, 500);
+        });
+    </script>
+</body>
+</html>
