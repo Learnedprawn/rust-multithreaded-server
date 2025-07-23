@@ -1,3 +1,4 @@
+use low_level_web_server::ThreadPool;
 use std::{
     fs,
     io::{BufRead, BufReader, Write},
@@ -7,9 +8,10 @@ use std::{
 };
 fn main() {
     let listner = TcpListener::bind("127.0.0.1:3000").unwrap();
+    let pool = ThreadPool::new(4);
     for stream in listner.incoming() {
         let stream = stream.unwrap();
-        thread::spawn(|| {
+        pool.execute(|| {
             handle_connection(stream);
         });
     }
