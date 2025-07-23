@@ -8,7 +8,16 @@ use std::{
 
 pub struct ThreadPool {
     workers: Vec<Worker>,
-    sender: mpsc::Sender<Job>,
+    sender: Option<mpsc::Sender<Job>>,
+}
+impl Drop for ThreadPool {
+    fn drop(&mut self) {
+        drop(self.sender.take());
+        for worker in self.workers.drain(..) {
+            println!("shutting down worker: {}", worker.id);
+            worker.handle.join().unwrap();
+        }
+    }
 }
 type Job = Box<dyn FnOnce() + Send + 'static>;
 impl ThreadPool {
@@ -29,7 +38,10 @@ impl ThreadPool {
             let worker = Worker::new(i, Arc::clone(&receiver));
             workers.push(worker);
         }
-        ThreadPool { workers, sender }
+        ThreadPool {
+            workers,
+            sender: Some(sender),
+        }
     }
 
     // pub fn build(number_of_threads: usize) -> Result<ThreadPool, PoolCreationError> {
@@ -45,7 +57,7 @@ impl ThreadPool {
         C: FnOnce() + Send + 'static,
     {
         let job = Box::new(closure);
-        self.sender.send(job).unwrap();
+        self.sender.as_ref().unwrap().send(job).unwrap();
     }
 }
 
@@ -58,9 +70,17 @@ impl Worker {
     fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker {
         let thread = thread::spawn(move || {
             loop {
-                let job = receiver.lock().unwrap().recv().unwrap();
-                println!("receiver {id} got a job!");
-                job();
+                let message = receiver.lock().unwrap().recv();
+                match message {
+                    Ok(job) => {
+                        println!("receiver {id} got a job!");
+                        job();
+                    }
+                    Err(_) => {
+                        println!("Worker {id} shut down");
+                        break;
+                    }
+                }
             }
         });
         Worker { id, handle: thread }

@@ -9,12 +9,13 @@ use std::{
 fn main() {
     let listner = TcpListener::bind("127.0.0.1:3000").unwrap();
     let pool = ThreadPool::new(4);
-    for stream in listner.incoming() {
+    for stream in listner.incoming().take(2) {
         let stream = stream.unwrap();
         pool.execute(|| {
             handle_connection(stream);
         });
     }
+    println!("shut down")
 }
 
 fn handle_connection(mut stream: TcpStream) {
